@@ -10,6 +10,14 @@
         android:layout_height="60dp"
         android:background="@color/black" >
 
+        <ImageView
+            android:id="@+id/activity_back"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_marginLeft="16dp"
+            android:src="@drawable/ic_nvg_back"
+            android:layout_centerVertical="true"/>
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -40,6 +48,37 @@
         android:background="@null" >
     </EditText>
 
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/gainsboro"
+        android:layout_margin="8dp" />
+
+    <LinearLayout
+        android:id="@+id/activity_malfunction_location_ll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_margin="8dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="位置："
+            android:textSize="16dp"/>
+        <TextView
+            android:id="@+id/activity_malfunction_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16dp"/>
+    </LinearLayout>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/gainsboro"
+        android:layout_margin="8dp" />
+
     <GridView 
         android:id="@+id/noScrollgridview"
         android:layout_width="290dp"
@@ -50,5 +89,7 @@
         android:scrollbars="none"
         android:verticalSpacing="5dp" >
     </GridView>
+
+
 
 </LinearLayout>

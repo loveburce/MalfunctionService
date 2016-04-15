@@ -4,7 +4,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
 
-import com.dawn.apollo.malfunctionservice.R;
+import com.dawn.apollo.R;
 
 /**
  * Created by Administrator on 2016/1/26.

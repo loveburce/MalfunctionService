@@ -22,8 +22,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.dawn.apollo.R;
 import com.dawn.apollo.adapter.AlbumGridViewAdapter;
-import com.dawn.apollo.malfunctionservice.R;
 import com.dawn.apollo.utils.photo.AlbumHelper;
 import com.dawn.apollo.utils.photo.Bimp;
 import com.dawn.apollo.utils.photo.ImageBucket;
@@ -59,13 +59,15 @@ public class AlbumActivity extends Activity {
 	private AlbumHelper helper;
 	public static List<ImageBucket> contentList;
 	public static Bitmap bitmap;
+	IntentFilter filter;
+
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(Res.getLayoutID("plugin_camera_album"));
 		PublicWay.activityList.add(this);
 		mContext = this;
 		//注册一个广播，这个广播主要是用于在GalleryActivity进行预览时，防止当所有图片都删除完后，再回到该页面时被取消选中的图片仍处于选中状态
-		IntentFilter filter = new IntentFilter("data.broadcast.action");  
+		filter = new IntentFilter("data.broadcast.action");
 		registerReceiver(broadcastReceiver, filter);  
         bitmap = BitmapFactory.decodeResource(getResources(),Res.getDrawableID("plugin_camera_no_pictures"));
         init();
@@ -73,7 +75,13 @@ public class AlbumActivity extends Activity {
 		//这个函数主要用来控制预览和完成按钮的状态
 		isShowOkBt();
 	}
-	
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		unregisterReceiver(broadcastReceiver);
+	}
+
 	BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {  
 		  
         @Override  
@@ -194,7 +202,7 @@ public class AlbumActivity extends Activity {
 	private boolean removeOneData(ImageItem imageItem) {
 			if (Bimp.tempSelectBitmap.contains(imageItem)) {
 				Bimp.tempSelectBitmap.remove(imageItem);
-				okButton.setText(Res.getString("finish")+"(" +Bimp.tempSelectBitmap.size() + "/"+PublicWay.num+")");
+				okButton.setText(Res.getString("finish") + "(" + Bimp.tempSelectBitmap.size() + "/" + PublicWay.num + ")");
 				return true;
 			}
 		return false;
@@ -233,4 +241,6 @@ protected void onRestart() {
 	isShowOkBt();
 	super.onRestart();
 }
+
+
 }

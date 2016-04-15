@@ -7,7 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.dawn.apollo.malfunctionservice.R;
+import com.dawn.apollo.R;
 import com.dawn.apollo.model.TunnelInfo;
 
 import java.util.List;

@@ -33,22 +33,21 @@ import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.StringRequest;
+import com.dawn.apollo.MyApplication;
+import com.dawn.apollo.R;
 import com.dawn.apollo.config.Constant;
 import com.dawn.apollo.http.HttpClientRequest;
-import com.dawn.apollo.http.MultipartRequest;
 import com.dawn.apollo.http.OkHttpClientManager;
-import com.dawn.apollo.malfunctionservice.R;
-import com.dawn.apollo.model.TunnelInfo;
-import com.dawn.apollo.utils.JsonUtil;
 import com.dawn.apollo.utils.MD5Tools;
 import com.dawn.apollo.utils.photo.Bimp;
 import com.dawn.apollo.utils.photo.FileUtils;
 import com.dawn.apollo.utils.photo.ImageItem;
 import com.dawn.apollo.utils.photo.PublicWay;
 import com.dawn.apollo.utils.photo.Res;
-import com.google.gson.reflect.TypeToken;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.MultipartBuilder;
@@ -57,9 +56,9 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -81,19 +80,27 @@ public class MalfunctionActivity extends Activity {
     private LinearLayout ll_popup;
     public static Bitmap bimap ;
     TextView tv_submit;
+    TextView tv_location;
+    LinearLayout ll_location;
+    ImageView iv_back;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Res.init(this);
         bimap = BitmapFactory.decodeResource(getResources(), R.drawable.icon_addpic_unfocused);
         PublicWay.activityList.add(this);
-        parentView = getLayoutInflater().inflate(R.layout.activity_selectimg, null);
+        parentView = getLayoutInflater().inflate(R.layout.activity_malfunction, null);
         setContentView(parentView);
         Init();
     }
 
     public void Init() {
         tv_submit = (TextView) findViewById(R.id.activity_selectimg_send);
+        ll_location = (LinearLayout) findViewById(R.id.activity_malfunction_location_ll);
+        tv_location = (TextView) findViewById(R.id.activity_malfunction_location);
+        iv_back = (ImageView) findViewById(R.id.activity_back);
+
+        tv_location.setText(MyApplication.address);
 
         pop = new PopupWindow(MalfunctionActivity.this);
         View view = getLayoutInflater().inflate(R.layout.item_popupwindows, null);
@@ -164,10 +171,27 @@ public class MalfunctionActivity extends Activity {
         tv_submit.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                uploadImageFiles();
+//                uploadImageFiles();
+                uploadImageData();
             }
         });
 
+        ll_location.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MalfunctionActivity.this, LocationActivity.class);
+//                intent.putExtra("position", "1");
+//                intent.putExtra("ID", arg2);
+                startActivity(intent);
+            }
+        });
+
+        iv_back.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
     }
 
     @SuppressLint("HandlerLeak")
@@ -417,5 +441,120 @@ public class MalfunctionActivity extends Activity {
         });
 
 
+    }
+
+
+    private void uploadImageData(){
+        String httpurl = Constant.submitTrouble;
+
+        //在这里设置需要post的参数
+        Map<String,String> params = new HashMap<String, String>();
+
+        String sign = null;
+        String chunnel_id = null;
+        String location = null;
+        String description = null;
+        //东经：116°23′17〃，北纬：116°23′17〃
+        try {
+            chunnel_id = URLEncoder.encode("1", "UTF-8");
+            location = URLEncoder.encode("116°23′17:116°23′17", "UTF-8");
+            description = URLEncoder.encode("发动机坏了", "UTF-8");
+
+            sign = URLEncoder.encode(MD5Tools.GetMD5Code(MD5Tools.GetMD5Code(chunnel_id+description+location)+Constant.PublicKey), "UTF-8");
+
+            params.put("chunnel_id", chunnel_id);
+            params.put("location", location);
+            params.put("description", description);
+            params.put("sign", sign);
+
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+
+
+        List<File> fileList = new ArrayList<>();
+        for(int i=0; i<Bimp.tempSelectBitmap.size();i++){
+            ImageItem imageItem = Bimp.tempSelectBitmap.get(i);
+//            Log.d("imageItemimageItem","imageItemimageItem : "+imageItem.toString());
+            File file = new File(imageItem.getImagePath());
+            fileList.add(file);
+        }
+
+//    public static Response post(String url, File[] files, String[] fileKeys, Param... params) throws IOException {
+//        OkHttpClientManager okHttpClientManager = OkHttpClientManager.getInstance();
+
+//        okHttpClientManager.post(httpurl,fileList,);
+
+
+        //参数类型
+        MediaType MEDIA_TYPE_PNG = MediaType.parse("image/png");
+        //创建OkHttpClient实例
+        OkHttpClient client = new OkHttpClient();
+
+        final MultipartBuilder builder = new MultipartBuilder().type(MultipartBuilder.FORM);
+
+        //遍历map中所有参数到builder
+        for (String key : params.keySet()) {
+            builder.addFormDataPart(key, params.get(key));
+        }
+
+
+        //遍历paths中所有图片绝对路径到builder，并约定key如“upload”作为后台接受多张图片的key
+        for (ImageItem imageItem : Bimp.tempSelectBitmap) {
+            builder.addFormDataPart("imgs", null, RequestBody.create(MEDIA_TYPE_PNG, new File(imageItem.getImagePath())));
+        }
+
+
+        HttpClientRequest httpClientRequest = HttpClientRequest.getInstance(MalfunctionActivity.this);
+
+        StringRequest stringRequest = new StringRequest(com.android.volley.Request.Method.POST,httpurl,
+                new com.android.volley.Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d("ffffffffffffff", "response -> " + response);
+
+                        JSONObject jsonObject = null;
+                        String results;
+
+                    }
+                }, new com.android.volley.Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("ffffffffffffff", error.getMessage(), error);
+            }
+        }) {
+//            @Override
+//            protected Map<String, String> getParams() {
+//                //在这里设置需要post的参数
+//                Map<String,String> params = new HashMap<String, String>();
+//
+//                String sign = null;
+//                try {
+//                    sign = URLEncoder.encode(MD5Tools.GetMD5Code(Constant.PublicKey), "UTF-8");
+//                } catch (UnsupportedEncodingException e) {
+//                    e.printStackTrace();
+//                }
+//                params.put("sign", sign);
+//                Log.e("ffffffffffffff", " sign : "+sign);
+//                return params;
+//            }
+
+            @Override
+            public byte[] getBody() throws AuthFailureError {
+
+                Log.d("ffffffffffffff", "builder.build().toString() : "+builder.build().toString());
+
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                try {
+                    out.write(builder.build().toString().getBytes());
+                } catch (IOException e) {
+                    VolleyLog.e("IOException writing to ByteArrayOutputStream");
+                }
+                return out.toByteArray();
+            }
+        };
+
+        httpClientRequest.addRequest(stringRequest);
     }
 }

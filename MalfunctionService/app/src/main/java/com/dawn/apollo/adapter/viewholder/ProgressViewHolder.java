@@ -5,7 +5,8 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.dawn.apollo.malfunctionservice.R;
+import com.dawn.apollo.R;
+
 
 /**
  * Created by Administrator on 2015/10/9.
