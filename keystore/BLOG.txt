@@ -1,0 +1,221 @@
+Keytool 是一个JAVA环境下的安全钥匙与证书的管理工具，Keytool将密钥（key）和证书（certificates）存在一个称为keystore 的文件(受密码保护)中。
+在keystore里，包含两种数据： 
+密钥实体（Key entity）——密钥（secret key）又或者是私钥和配对公钥（采用非对称加密）
+可信任的证书实体（trusted certificate entries）——只包含公钥
+jarsigner是JDK中包含的用于JAR文件签名和验证的工具。为Java档案文件(JAR)生成签名，以及对已签名的jar文件的进行校验。
+
+JDK中ketyTool常用命令：
+-genkey     在用户主目录中创建一个默认文件".keystore",还会产生一个mykey的别名，mykey中包含用户的公钥、私钥和证书，(默认情况下,keystore会存在用户系统默认目录，如：win系统，会生成在C:\Documents and Settings\用户名\文件名为“.keystore”)
+-alias     产生别名(default：mykey,每个keystore都关联这一个独一无二的alias，不区分大小写)
+-keystore     指定密钥库的名称(产生的各类信息将不在.keystore文件中)
+-keyalg     指定密钥的算法 (如RSA、DSA，default：DSA)
+-validity     指定创建的证书有效期多少天(default：90)
+-keysize     指定密钥长度(default：1024，范围：512 ~ 1024)
+-storepass     指定密钥库的密码(获取keystore信息所需的密码)
+-keypass     指定别名条目的密码(私钥的密码)
+-dname     指定证书拥有者信息 
+例如： "CN=名字与姓氏,OU=组织单位名称,O=组织名称,L=城市或区域名称,ST=州或省份名称,C=单位的两字母国家代码"
+-list     显示密钥库中的证书信息 
+keytool -list -v -keystore 指定keystore -storepass 密码     -v 显示密钥库中的证书详细信息
+-export     将别名指定的证书导出到文件 
+keytool -export -alias 需要导出的别名 -keystore 指定keystore -file 指定导出的证书位置及证书名称 -storepass 密码
+-delete     删除密钥库中某条目 
+keytool -delete -alias 指定需删除的keystore别名 -keystore 指定keystore -storepass 密码
+-printcert     查看导出的证书信息
+keytool -printcert -file yushan.crt
+-keypasswd     修改密钥库中指定条目口令 
+keytool -keypasswd -alias 需修改的别名 -keypass 旧密码 -new 新密码 -storepass keystore密码 -keystore sage
+-storepasswd     修改keystore口令 
+keytool -storepasswd -keystore e:\yushan.keystore(需修改口令的keystore) -storepass 123456(原始密码) -new yushan(新密码)
+-import     将已签名数字证书导入密钥库 
+keytool -import -alias 别名 -keystore指定keystore -file需导入的证书
+
+keytool 使用demo(注：.keystore可以换成.jks后缀)：
+1、keystore的生成：
+
+分阶段生成：
+keytool -genkey -alias yushan(别名) -keypass yushan(别名密码) -keyalg RSA(算法) -keysize 1024(密钥长度) -validity 365(有效期，天单位) -keystore
+e:\yushan.keystore(指定生成证书的位置和证书名称) -storepass 123456(获取keystore信息的密码)；
+回车输入相关信息即可；
+
+一次性生成：
+keytool -genkey -alias yushan -keypass yushan -keyalg RSA -keysize 1024 -validity 365 -keystore e:\yushan.keystore -storepass 123456 -dname "CN=(名字与
+姓氏), OU=(组织单位名称), O=(组织名称), L=(城市或区域名称), ST=(州或省份名称), C=(单位的两字母国家代码)";
+(中英文即可)
+
+2、keystore信息的查看：
+keytool -list -v -keystore e:\keytool\yushan.keystore -storepass 123456
+显示内容：
+[plain] view plain copy
+Keystore 类型： JKS  
+Keystore 提供者： SUN  
+  
+您的 keystore 包含 1 输入  
+  
+别名名称： yushan  
+创建日期： 2009-7-29  
+项类型: PrivateKeyEntry  
+认证链长度： 1  
+认证 [1]:  
+所有者:CN=yushan, OU=xx公司, O=xx协会, L=湘潭, ST=湖南, C=中国  
+签发人:CN=yushan, OU=xx公司, O=xx协会, L=湘潭, ST=湖南, C=中国  
+序列号:4a6f29ed  
+有效期: Wed Jul 29 00:40:13 CST 2009 至Thu Jul 29 00:40:13 CST 2010  
+证书指纹:  
+MD5:A3:D7:D9:74:C3:50:7D:10:C9:C2:47:B0:33:90:45:C3  
+SHA1:2B:FC:9E:3A:DF:C6:C4:FB:87:B8:A0:C6:99:43:E9:4C:4A:E1:18:E8  
+签名算法名称:SHA1withRSA  
+版本: 3  
+缺省情况下，-list 命令打印证书的 MD5 指纹。而如果指定了 -v 选项，将以可读格式打印证书，如果指定了 -rfc 选项，将以可打印的编码格式输出证书。
+keytool -list -rfc -keystore e:\yushan.keystore -storepass 123456
+显示：
+[plain] view plain copy
+Keystore 类型： JKS  
+Keystore 提供者： SUN  
+  
+您的 keystore 包含 1 输入  
+  
+别名名称： yushan  
+创建日期： 2009-7-29  
+项类型: PrivateKeyEntry  
+认证链长度： 1  
+认证 [1]:  
+-----BEGIN CERTIFICATE-----  
+MIICSzCCAbSgAwIBAgIESm8p7TANBgkqhkiG9w0BAQUFADBqMQ8wDQYDVQQGDAbkuK3lm70xDzAN  
+BgNVBAgMBua5luWNlzEPMA0GA1UEBwwG5rmY5r2tMREwDwYDVQQKDAh4eOWNj+S8mjERMA8GA1UE  
+CwwIeHjlhazlj7gxDzANBgNVBAMTBnl1c2hhbjAeFw0wOTA3MjgxNjQwMTNaFw0xMDA3MjgxNjQw  
+MTNaMGoxDzANBgNVBAYMBuS4reWbvTEPMA0GA1UECAwG5rmW5Y2XMQ8wDQYDVQQHDAbmuZjmva0x  
+ETAPBgNVBAoMCHh45Y2P5LyaMREwDwYDVQQLDAh4eOWFrOWPuDEPMA0GA1UEAxMGeXVzaGFuMIGf  
+MA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCJoru1RQczRzTnBWxefVNspQBykS220rS8Y/oX3mZa  
+hjL4wLfOURzUuxxuVQR2jx7QI+XKME+DHQj9r6aAcLBCi/T1jwF8mVYxtpRuTzE/6KEZdhowEe70  
+liWLVE+hytLBHZ03Zhwcd6q5HUMu27du3MPQvqiwzTY7MrwIvQQ8iQIDAQABMA0GCSqGSIb3DQEB  
+BQUAA4GBAGoQQ1/FnTfkpQh+Ni6h3fZdn3sR8ZzDMbOAIYVLAhBb85XDJ8QZTarHbZMJcIdHxAl1  
+i08ct3E8U87V9t8GZFWVC4BFg/+zeFEv76SFpVE56iX7P1jpsu78z0m69hHlds77VJTdyfMSvtXv  
+sYHP3fxfzx9WyhipBwd8VPK/NgEP  
+-----END CERTIFICATE-----  
+3、证书的导出：
+keytool -export -alias yushan -keystore e:\yushan.keystore -file e:\yushan.crt -storepass 123456
+
+4、查看导出的证书信息
+keytool -printcert -file yushan.crt
+显示：（在windows下可以双击yushan.crt查看）
+[plain] view plain copy
+所有者:CN=yushan, OU=xx公司, O=xx协会, L=湘潭, ST=湖南, C=中国  
+签发人:CN=yushan, OU=xx公司, O=xx协会, L=湘潭, ST=湖南, C=中国  
+序列号:4a6f29ed  
+有效期: Wed Jul 29 00:40:13 CST 2009 至Thu Jul 29 00:40:13 CST 2010  
+证书指纹:  
+MD5:A3:D7:D9:74:C3:50:7D:10:C9:C2:47:B0:33:90:45:C3  
+SHA1:2B:FC:9E:3A:DF:C6:C4:FB:87:B8:A0:C6:99:43:E9:4C:4A:E1:18:E8  
+签名算法名称:SHA1withRSA  
+版本: 3  
+5、证书的导入：
+准备一个导入的证书：
+keytool -genkey -alias shuany -keypass shuany -keyalg RSA -keysize 1024 -validity 365 -keystore e:\shuany.keystore -storepass 123456 -dname "CN=shuany,
+OU=xx, O=xx, L=xx, ST=xx, C=xx";
+keytool -export -alias shuany -keystore e:\shuany.keystore -file e:\shuany.crt -storepass 123456
+现在将shuany.crt 加入到yushan.keystore中：
+keytool -import -alias shuany(指定导入证书的别名，如果不指定默认为mykey,别名唯一，否则导入出错) -file e:\shuany.crt -keystore e:\yushan.keystore -storepass
+123456
+keytool -list -v -keystore e:\keytool\yushan.keystore -storepass 123456
+显示：
+[plain] view plain copy
+Keystore 类型： JKS  
+Keystore 提供者： SUN  
+  
+您的 keystore 包含 2 输入  
+  
+别名名称： yushan  
+创建日期： 2009-7-29  
+项类型: PrivateKeyEntry  
+认证链长度： 1  
+认证 [1]:  
+所有者:CN=yushan, OU=xx公司, O=xx协会, L=湘潭, ST=湖南, C=中国  
+签发人:CN=yushan, OU=xx公司, O=xx协会, L=湘潭, ST=湖南, C=中国  
+序列号:4a6f29ed  
+有效期: Wed Jul 29 00:40:13 CST 2009 至Thu Jul 29 00:40:13 CST 2010  
+证书指纹:  
+MD5:A3:D7:D9:74:C3:50:7D:10:C9:C2:47:B0:33:90:45:C3  
+SHA1:2B:FC:9E:3A:DF:C6:C4:FB:87:B8:A0:C6:99:43:E9:4C:4A:E1:18:E8  
+签名算法名称:SHA1withRSA  
+版本: 3  
+  
+  
+*******************************************  
+*******************************************  
+  
+  
+别名名称： shuany  
+创建日期： 2009-7-29  
+输入类型： trustedCertEntry  
+  
+所有者:CN=shuany, OU=xx, O=xx, L=xx, ST=xx, C=xx  
+签发人:CN=shuany, OU=xx, O=xx, L=xx, ST=xx, C=xx  
+序列号:4a6f2cd9  
+有效期: Wed Jul 29 00:52:41 CST 2009 至Thu Jul 29 00:52:41 CST 2010  
+证书指纹:  
+MD5:15:03:57:9B:14:BD:C5:50:21:15:47:1E:29:87:A4:E6  
+SHA1:C1:4F:8B:CD:5E:C2:94:77:B7:42:29:35:5C:BB:BB:2E:9E:F0:89:F5  
+签名算法名称:SHA1withRSA  
+版本: 3  
+  
+  
+*******************************************  
+*******************************************  
+6、证书条目的删除：
+keytool -delete -alias shuany  -keystore yushan.keystore -storepass 123456
+
+7、证书条目口令的修改：
+keytool -keypasswd -alias yushan -keypass yushan -new 123456 -keystore e:\yushan.keystore -storepass 123456
+
+8、keystore口令的修改：
+keytool -storepasswd -keystore e:\yushan.keystore  -storepass 123456 -new yushan
+9、修改keystore中别名为yushan的信息
+keytool -selfcert -alias yushan -keypass yushan -keystore e:\yushan.keystore -storepass 123456 -dname "cn=yushan,ou=yushan,o=yushan,c=us"
+jarsigner工具简介
+jarsigner工具主要有以下两个作用：
+a.对JAR文件签名            jarsigner [ options ] jarfile alias
+b.校验签名以及签名JAR文件的完整性     jarsigner -verify [ options ] jarfile
+JAR文件可以同时包含多个package的类文件，图片，声音以及数字数据，一边更快更方便的发布。jar工具用来创建JAR文件，从技术角度来说，任何zip文件都可以被看作是JAR文件,虽然使用jar创建的JAR文件包含META-INF/MANIFEST.MF文件。
+数字签名是从一个实体（人、公司等）的某些数据（正被“签名”的数据）和私钥计算出来的位串。与手写的签名一样，数字签名有很多有用的特性： 
+1.真实性2.不可能被伪造（假设私钥没有泄露）3.已签名的数据不能被修改；如果被修改了，签名将不再被校验为可信的。
+为了给文件生成实体的签名，该实体首先必须与一对公/私钥相关联，以及一个或多个鉴别其公钥的证书。证书是来自一个实体的已被数字签署的声明，表示某个其它实体的公钥有特定值。
+使用keytool 创建和管理密钥仓库(keystore)后，jarsigner 使用来自密钥仓库(keystore)的密钥和证书信息为 JAR 文件生成数字签名。
+语法参数：
+jarsigner -verify [选项] jar 文件
+[-keystore <url>]                  密钥库位置
+[-storepass <口令>]           用于密钥库完整性的口令
+[-storetype <类型>]             密钥库类型
+[-keypass <口令>]              专用密钥的口令（如果不同）
+[-sigfile <文件>]                 .SF/.DSA 文件的名称
+[-signedjar <文件>]            已签名的 JAR 文件的名称
+[-digestalg <算法>]            摘要算法的名称
+[-sigalg <算法>]                  签名算法的名称
+[-verify]                验证已签名的 JAR 文件
+[-verbose]         签名/验证时输出详细信息
+[-certs]               输出详细信息和验证时显示证书
+[-tsa <url>]               时间戳机构的位置
+[-tsacert <别名>]            时间戳机构的公共密钥证书
+[-altsigner <类>]            替代的签名机制的类名
+[-altsignerpath <路径列表>]   替代的签名机制的位置
+[-internalsf]            在签名块内包含 .SF 文件
+[-sectionsonly]             不计算整个清单的散列
+[-protected]              密钥库已保护验证路径
+[-providerName <名称>]              提供者名称
+[-providerClass <类>              加密服务提供者的名称
+[-providerArg <参数>]] ...             主类文件和构造函数参数
+使用demo：
+C:\>jar cf pg.jar org\*.*
+C:\>jarsigner -storetype jks -keystore c:\mykeystore.keystore -digestalg MD5 -sigalg MD5withRSA -signedjar pgsigned.jar pg.jar myalias
+C:\>jarsigner -verify pgsigned.jar
+修改MYALIAS.SF文件的内容，然后再校验：
+C:\>jarsigner -verify pgsigned.jar
+
+附：Java KeyStore的类型
+JKS和JCEKS是Java密钥库(KeyStore)的两种比较常见类型(我所知道的共有5种，JKS, JCEKS, PKCS12, BKS，UBER)。
+
+JKS的Provider是SUN，在每个版本的JDK中都有，JCEKS的Provider是SUNJCE，1.4后我们都能够直接使用它。
+JCEKS在安全级别上要比JKS强，使用的Provider是JCEKS(推荐)，尤其在保护KeyStore中的私钥上（使用TripleDes）。
+PKCS#12是公钥加密标准，它规定了可包含所有私钥、公钥和证书。其以二进制格式存储，也称为 PFX 文件，在windows中可以直接导入到密钥区，注意，PKCS#12的密钥库保护密码同时也用于保护Key。
+BKS 来自BouncyCastle Provider，它使用的也是TripleDES来保护密钥库中的Key，它能够防止证书库被不小心修改（Keystore的keyentry改掉1个 bit都会产生错误），BKS能够跟JKS互操作，读者可以用Keytool去TryTry。
+UBER比较特别，当密码是通过命令行提供的时候，它只能跟keytool交互。整个keystore是通过PBE/SHA1/Twofish加密，因此keystore能够防止被误改、察看以及校验。以前，Sun JDK(提供者为SUN)允许你在不提供密码的情况下直接加载一个Keystore，类似cacerts，UBER不允许这种情况。

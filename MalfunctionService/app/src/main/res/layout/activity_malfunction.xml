@@ -40,6 +40,7 @@
     </RelativeLayout>
 
     <EditText
+        android:id="@+id/activity_selectimg_describe"
         android:layout_width="fill_parent"
         android:layout_height="100dp"
         android:layout_margin="8dp"
@@ -55,23 +56,50 @@
         android:layout_margin="8dp" />
 
     <LinearLayout
-        android:id="@+id/activity_malfunction_location_ll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_margin="8dp">
+    <LinearLayout
+        android:id="@+id/activity_malfunction_address_ll"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_margin="8dp">
+        android:layout_margin="4dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="位置："
-            android:textSize="16dp"/>
+            android:textSize="16dp"
+            android:layout_marginLeft="8dp"/>
         <TextView
-            android:id="@+id/activity_malfunction_location"
+            android:id="@+id/activity_malfunction_address"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="16dp"/>
     </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/activity_malfunction_location_ll"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_margin="4dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="经纬度："
+                android:textSize="16dp"
+                android:layout_marginLeft="8dp"/>
+            <TextView
+                android:id="@+id/activity_malfunction_location"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="16dp"/>
+        </LinearLayout>
+        </LinearLayout>
 
     <ImageView
         android:layout_width="match_parent"

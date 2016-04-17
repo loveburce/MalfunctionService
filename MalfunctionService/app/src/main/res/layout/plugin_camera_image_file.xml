@@ -19,14 +19,11 @@
        		android:text="@string/photo"
        		android:layout_centerInParent="true"
        		android:textSize="20sp"		
-			android:textColor="#ffffff"
-            />
+			android:textColor="#ffffff" />
         
         <Button
             android:background="@drawable/plugin_camera_title_btn_cancel"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
-            android:layout_width="70dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:id="@+id/cancel"

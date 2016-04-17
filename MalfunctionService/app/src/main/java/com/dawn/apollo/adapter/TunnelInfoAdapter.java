@@ -15,10 +15,30 @@ import java.util.List;
 /**
  * Created by dawn-pc on 2016/4/12.
  */
-public class TunnelInfoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
+public class TunnelInfoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>  implements View.OnClickListener{
     private List<TunnelInfo> mData;
     private final LayoutInflater mLayoutInflater;
+    private OnRecyclerViewItemClickListener mOnItemClickListener = null;
     private Context mContext;
+
+    @Override
+    public void onClick(View v) {
+        if (mOnItemClickListener != null) {
+            //注意这里使用getTag方法获取数据
+            Log.d("tunnelId","tunnelId (String)v.getTag() : "+(String)v.getTag());
+
+            mOnItemClickListener.onItemClick(v,(String)v.getTag());
+        }
+    }
+
+    //define interface
+    public static interface OnRecyclerViewItemClickListener {
+        void onItemClick(View view , String data);
+    }
+
+    public void setOnItemClickListener(OnRecyclerViewItemClickListener listener) {
+        this.mOnItemClickListener = listener;
+    }
 
     public TunnelInfoAdapter(Context context, List<TunnelInfo> data) {
         this.mContext = context;
@@ -30,7 +50,12 @@ public class TunnelInfoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new ItemHolder(mLayoutInflater.inflate(R.layout.adapter_tunnel_info, parent, false));
+        View view = mLayoutInflater.inflate(R.layout.adapter_tunnel_info, parent, false);
+        ItemHolder itemHolder = new ItemHolder(view);
+        //将创建的View注册点击事件
+        view.setOnClickListener(this);
+
+        return itemHolder;
     }
 
     @Override
@@ -38,8 +63,9 @@ public class TunnelInfoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         final TunnelInfo tunnelInfo = mData.get(position);
         ItemHolder itemHolder = (ItemHolder)holder;
         itemHolder.mTextView.setText(tunnelInfo.getName());
-
-        Log.d("ffffffffffffff", "response -> " + itemHolder.toString());
+        //将数据保存在itemView的Tag中，以便点击时进行获取
+        itemHolder.itemView.setTag(tunnelInfo.getId());
+//        Log.d("ffffffffffffff", "response -> " + itemHolder.toString());
     }
 
     @Override

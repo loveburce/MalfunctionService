@@ -1,9 +1,12 @@
 package com.dawn.apollo.activity;
 
+import android.Manifest;
+import android.annotation.TargetApi;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -26,6 +29,7 @@ import com.dawn.apollo.customview.WrapContentLinearLayoutManager;
 import com.dawn.apollo.http.HttpClientRequest;
 import com.dawn.apollo.model.TunnelInfo;
 import com.dawn.apollo.utils.JsonUtil;
+import com.dawn.apollo.utils.SharePreferenceUtils;
 import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONException;
@@ -50,23 +54,32 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     FloatingActionButton floatingActionButton;
 
     TunnelInfoAdapter tunnelInfoAdapter;
-
     List<TunnelInfo> tunnelInfoList;
+    private final int SDK_PERMISSION_REQUEST = 127;
+    private String permissionInfo;
+    SharePreferenceUtils sharePreferenceUtils;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_scrolling);
+        setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
+        getPersimmions();
+        sharePreferenceUtils = new SharePreferenceUtils(MainActivity.this,"MyApplication");
+        sharePreferenceUtils.setValue("LatitudeLongitude", "");
+        sharePreferenceUtils.setValue("Address", "");
+        sharePreferenceUtils.setValue("Describe", "");
+        sharePreferenceUtils.setValue("TunnelId", "");
+
 
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 //                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show();
 
-                Intent intent = new Intent(MainActivity.this,MalfunctionActivity.class);
-                MainActivity.this.startActivity(intent);
+//                Intent intent = new Intent(MainActivity.this,MalfunctionActivity.class);
+//                MainActivity.this.startActivity(intent);
             }
         });
 
@@ -100,6 +113,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         return true;
     }
 
+
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -131,6 +146,19 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         }else{
             tunnelInfoAdapter.notifyDataSetChanged();
         }
+
+        tunnelInfoAdapter.setOnItemClickListener(new TunnelInfoAdapter.OnRecyclerViewItemClickListener(){
+            @Override
+            public void onItemClick(View view , String data){
+
+                Log.d("tunnelId", "tunnelId onItemClick : " + data);
+
+                Intent intent = new Intent(MainActivity.this,MalfunctionActivity.class);
+                intent.putExtra("TunnelId",data);
+                MainActivity.this.startActivity(intent);
+            }
+        });
+
     }
 
     @Override
@@ -187,5 +215,61 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         };
 
         httpClientRequest.addRequest(stringRequest);
+    }
+
+
+    @TargetApi(23)
+    private void getPersimmions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            ArrayList<String> permissions = new ArrayList<String>();
+            /***
+             * 定位权限为必须权限，用户如果禁止，则每次进入都会申请
+             */
+            // 定位精确位置
+            if(checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+                permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
+            }
+            if(checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+                permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
+            }
+			/*
+			 * 读写权限和电话状态权限非必要权限(建议授予)只会申请一次，用户同意或者禁止，只会弹一次
+			 */
+            // 读写权限
+            if (addPermission(permissions, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                permissionInfo += "Manifest.permission.WRITE_EXTERNAL_STORAGE Deny \n";
+            }
+            // 读取电话状态权限
+            if (addPermission(permissions, Manifest.permission.READ_PHONE_STATE)) {
+                permissionInfo += "Manifest.permission.READ_PHONE_STATE Deny \n";
+            }
+
+            if (permissions.size() > 0) {
+                requestPermissions(permissions.toArray(new String[permissions.size()]), SDK_PERMISSION_REQUEST);
+            }
+        }
+    }
+
+    @TargetApi(23)
+    private boolean addPermission(ArrayList<String> permissionsList, String permission) {
+        if (checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) { // 如果应用没有获得对应权限,则添加到列表中,准备批量申请
+            if (shouldShowRequestPermissionRationale(permission)){
+                return true;
+            }else{
+                permissionsList.add(permission);
+                return false;
+            }
+
+        }else{
+            return true;
+        }
+    }
+
+    @TargetApi(23)
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        // TODO Auto-generated method stub
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
     }
 }

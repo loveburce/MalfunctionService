@@ -2,39 +2,31 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent" 
-    android:background="@color/albumback"
-    >
+    android:background="@color/albumback">
 
     <RelativeLayout
         android:id="@+id/headview"
         android:layout_width="fill_parent"
         android:layout_height="45dp"
         android:background="@drawable/plugin_camera_title_bar"
-        android:gravity="center_vertical"
-        >
+        android:gravity="center_vertical">
         <Button
-            android:textSize="14sp"
-            android:textColor="#fff"
             android:id="@+id/gallery_back"
-            android:text="@string/album"
-            android:background="@drawable/plugin_camera_title_btn_back"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
-            android:layout_width="70dp"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            />
-        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
             android:textSize="14sp"
             android:textColor="#fff"
+            android:text="@string/back"
+            android:background="@drawable/plugin_camera_title_btn_back"
+            android:layout_centerVertical="true" />
+        <Button
             android:id="@+id/gallery_del"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:textSize="14sp"
+            android:textColor="#fff"
             android:background="@drawable/plugin_camera_del_state"
-            android:layout_alignParentRight="true"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
-            android:layout_width="50dp"
-            android:layout_height="wrap_content"
-            />
+            android:layout_alignParentRight="true" />
     </RelativeLayout>
     
      <RelativeLayout
@@ -51,12 +43,11 @@
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:text="@string/finish"
-            android:background="@drawable/plugin_camera_ok_btn_state"
-            />
+            android:background="@drawable/plugin_camera_ok_btn_state" />
 
     </RelativeLayout>
-    
-    <com.king.photo.zoom.ViewPagerFixed
+
+    <com.dawn.apollo.zoom.ViewPagerFixed
       android:id="@+id/gallery01" 
       android:layout_width="fill_parent" 
       android:layout_height="wrap_content"
@@ -64,8 +55,7 @@
       android:layout_below="@id/headview"
       android:layout_centerHorizontal="true"
       android:background="@color/plugin_camera_black"
-      android:unselectedAlpha="1">
-   	</com.king.photo.zoom.ViewPagerFixed>
+      android:unselectedAlpha="1"/>
    
 </RelativeLayout>
   

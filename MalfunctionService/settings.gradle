@@ -1,1 +1,2 @@
-include ':app'
+include ':app', ':okhttputils'
+project(':okhttputils').projectDir = new File('androidlibrary/okhttputils')

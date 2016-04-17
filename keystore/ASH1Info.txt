@@ -1,0 +1,30 @@
+
+别名: dawn
+创建日期: 2016-4-16
+条目类型: PrivateKeyEntry
+证书链长度: 1
+证书[1]:
+所有者: CN=dawn, OU=dawn, O=dawn, L=beijing, ST=beijing, C=86
+发布者: CN=dawn, OU=dawn, O=dawn, L=beijing, ST=beijing, C=86
+序列号: 1363bcef
+有效期开始日期: Sat Apr 16 12:21:34 CST 2016, 截止日期: Sun Apr 16 12:21:34 CST
+2017
+证书指纹:
+         MD5: 47:BE:C8:DB:07:7F:34:F6:AD:07:B5:4C:58:B3:6F:83
+         SHA1: 3D:72:D1:B5:2D:C1:ED:AE:25:53:A3:18:66:FD:E2:09:6F:3C:A6:ED
+         SHA256: A0:DC:EC:01:89:E7:00:34:B8:B3:85:14:3D:26:0C:C4:78:95:C5:C5:5F:
+2D:D5:5B:D1:E6:B0:62:E6:04:09:73
+         签名算法名称: SHA256withRSA
+         版本: 3
+
+扩展:
+
+#1: ObjectId: 2.5.29.14 Criticality=false
+SubjectKeyIdentifier [
+KeyIdentifier [
+0000: 07 46 1F 62 CF 7C F8 5B   10 45 01 D8 E2 98 32 7E  .F.b...[.E....2.
+0010: 9B 79 D2 A7                                        .y..
+]
+]
+
+

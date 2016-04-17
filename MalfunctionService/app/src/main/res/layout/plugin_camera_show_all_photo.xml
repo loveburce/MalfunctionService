@@ -14,16 +14,13 @@
         >
         <Button
             android:background="@drawable/plugin_camera_title_btn_back"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
-            android:layout_width="70dp"
-            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
             android:layout_centerVertical="true"
             android:textSize="14sp"
             android:textColor="#fff"
             android:id="@+id/showallphoto_back"
-            android:text="@string/album"
-            />
+            android:text="@string/album" />
          <TextView
             android:id="@+id/showallphoto_headtitle"
             android:layout_width="wrap_content" 
@@ -36,17 +33,16 @@
             />
         
         <Button
-            android:layout_width="67dp" 
-      	    android:layout_height="wrap_content"
+            android:id="@+id/showallphoto_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
       	    android:layout_alignParentRight="true" 
       	    android:layout_centerVertical="true"
       	    android:layout_marginRight="5dp"
-            android:id="@+id/showallphoto_cancel"
             android:text="@string/camera_cancel"
             android:textColor="#fff"
         	android:textSize="15dp"
-			android:background="@drawable/plugin_camera_title_btn_cancel"
-            />
+			android:background="@drawable/plugin_camera_title_btn_cancel" />
     </RelativeLayout>
 
     <RelativeLayout
