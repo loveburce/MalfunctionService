@@ -98,7 +98,6 @@ public class MalfunctionActivity extends Activity {
     String address;
     String imei;
 
-
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         parentView = getLayoutInflater().inflate(R.layout.activity_malfunction, null);
@@ -527,7 +526,6 @@ public class MalfunctionActivity extends Activity {
 
                 sharePreferenceUtils.setValue("LatitudeLongitude", latitudeLongitude);
                 sharePreferenceUtils.setValue("Address",address);
-//                et_describe.setText(sharePreferenceUtils.getValue("Describe",""));
 
 //                mSVProgressHUD.showWithStatus("定位完成！");
                 StringBuffer sb = new StringBuffer(256);
