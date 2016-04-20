@@ -29,6 +29,7 @@ import com.dawn.apollo.customview.WrapContentLinearLayoutManager;
 import com.dawn.apollo.http.HttpClientRequest;
 import com.dawn.apollo.model.TunnelInfo;
 import com.dawn.apollo.utils.JsonUtil;
+import com.dawn.apollo.utils.PhoneUtils;
 import com.dawn.apollo.utils.SharePreferenceUtils;
 import com.google.gson.reflect.TypeToken;
 
@@ -201,6 +202,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             protected Map<String, String> getParams() {
                 //在这里设置需要post的参数
                 Map<String,String> params = new HashMap<String, String>();
+
+                params.put("imei", PhoneUtils.getPhoneInfo(MainActivity.this));
 
 //                String sign = null;
 //                try {

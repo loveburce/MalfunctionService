@@ -13,7 +13,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
-import android.telephony.TelephonyManager;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -48,17 +47,14 @@ import com.dawn.apollo.R;
 import com.dawn.apollo.config.Constant;
 import com.dawn.apollo.customview.PopMenu;
 import com.dawn.apollo.http.HttpClientRequest;
-import com.dawn.apollo.model.TunnelInfo;
-import com.dawn.apollo.utils.JsonUtil;
 import com.dawn.apollo.utils.MD5Tools;
 import com.dawn.apollo.utils.SharePreferenceUtils;
+import com.dawn.apollo.utils.PhoneUtils;
 import com.dawn.apollo.utils.photo.Bimp;
 import com.dawn.apollo.utils.photo.FileUtils;
 import com.dawn.apollo.utils.photo.ImageItem;
 import com.dawn.apollo.utils.photo.PublicWay;
 import com.dawn.apollo.utils.photo.Res;
-import com.google.gson.reflect.TypeToken;
-import com.squareup.okhttp.MediaType;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -66,10 +62,8 @@ import org.xutils.http.RequestParams;
 import org.xutils.x;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -444,7 +438,7 @@ public class MalfunctionActivity extends Activity {
         describe = et_describe.getText().toString();
         latitudeLongitude = tv_location.getText().toString();
         tunnelId = sharePreferenceUtils.getValue("TunnelId", "");
-        imei = getPhoneInfo(MalfunctionActivity.this);
+        imei = PhoneUtils.getPhoneInfo(MalfunctionActivity.this);
         problemType = sharePreferenceUtils.getValue("TroubleTypeId", "");;
 
 
@@ -652,10 +646,7 @@ public class MalfunctionActivity extends Activity {
 
     };
 
-    public  String getPhoneInfo(Context context){
-        TelephonyManager tm=(TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
-        return tm.getDeviceId();
-    }
+
 
     private void getAllTroubleTypes(){
         String httpurl = Constant.troubleTypes;
@@ -699,7 +690,7 @@ public class MalfunctionActivity extends Activity {
             protected Map<String, String> getParams() {
                 //在这里设置需要post的参数
                 Map<String,String> params = new HashMap<String, String>();
-                params.put("imei",getPhoneInfo(MalfunctionActivity.this));
+                params.put("imei", PhoneUtils.getPhoneInfo(MalfunctionActivity.this));
 
                 String sign = null;
                 try {
