@@ -23,7 +23,6 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -35,6 +34,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
 import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
 import com.baidu.location.Poi;
@@ -43,12 +46,18 @@ import com.bigkoo.svprogresshud.SVProgressHUD;
 import com.dawn.apollo.MyApplication;
 import com.dawn.apollo.R;
 import com.dawn.apollo.config.Constant;
+import com.dawn.apollo.customview.PopMenu;
+import com.dawn.apollo.http.HttpClientRequest;
+import com.dawn.apollo.model.TunnelInfo;
+import com.dawn.apollo.utils.JsonUtil;
+import com.dawn.apollo.utils.MD5Tools;
 import com.dawn.apollo.utils.SharePreferenceUtils;
 import com.dawn.apollo.utils.photo.Bimp;
 import com.dawn.apollo.utils.photo.FileUtils;
 import com.dawn.apollo.utils.photo.ImageItem;
 import com.dawn.apollo.utils.photo.PublicWay;
 import com.dawn.apollo.utils.photo.Res;
+import com.google.gson.reflect.TypeToken;
 import com.squareup.okhttp.MediaType;
 
 import org.json.JSONException;
@@ -57,8 +66,14 @@ import org.xutils.http.RequestParams;
 import org.xutils.x;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 import android.util.Log;
 
 import butterknife.Bind;
@@ -79,6 +94,10 @@ public class MalfunctionActivity extends Activity {
     TextView tv_address;
     @Bind(R.id.activity_malfunction_location_ll)
     LinearLayout ll_location;
+    @Bind(R.id.activity_malfunction_problem_types_ll)
+    LinearLayout ll_problemTypes;
+    @Bind(R.id.activity_malfunction_problem_types)
+    TextView tv_problemTypes;
     @Bind(R.id.activity_back)
     ImageView iv_back;
     @Bind(R.id.activity_selectimg_describe)
@@ -91,12 +110,17 @@ public class MalfunctionActivity extends Activity {
     public static Bitmap bimap ;
     SharePreferenceUtils sharePreferenceUtils;
     private SVProgressHUD mSVProgressHUD;
+    private Map<String, Integer> definitionMap;
+    private PopMenu definitionMenu;
+    private int currentDefinition = 0;
+    private String[] definitionArray;
 
     String tunnelId;
     String latitudeLongitude="";
     String describe;
     String address;
     String imei;
+    String problemType;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -108,11 +132,14 @@ public class MalfunctionActivity extends Activity {
         Res.init(this);
         bimap = BitmapFactory.decodeResource(getResources(), R.drawable.icon_addpic_unfocused);
         PublicWay.activityList.add(this);
-        Init();
+        initView();
+        definitionMap = new HashMap<>();
+        getAllTroubleTypes();
         initBaiduLocation();
         locationService.start();// 定位SDK
 
         mSVProgressHUD = new SVProgressHUD(this);
+
 
         tunnelId = getIntent().getStringExtra("TunnelId");
 
@@ -143,10 +170,12 @@ public class MalfunctionActivity extends Activity {
         }
     }
 
-    public void Init() {
+    public void initView() {
         tv_location.setText(sharePreferenceUtils.getValue("LatitudeLongitude",""));
-        tv_address.setText(sharePreferenceUtils.getValue("Address",""));
-        et_describe.setText(sharePreferenceUtils.getValue("Describe",""));
+        tv_address.setText(sharePreferenceUtils.getValue("Address", ""));
+        et_describe.setText(sharePreferenceUtils.getValue("Describe", ""));
+        tv_problemTypes.setText(sharePreferenceUtils.getValue("TroubleType", ""));
+
 
         pop = new PopupWindow(MalfunctionActivity.this);
         View view = getLayoutInflater().inflate(R.layout.item_popupwindows, null);
@@ -200,7 +229,7 @@ public class MalfunctionActivity extends Activity {
         adapter = new GridAdapter(this);
         adapter.update();
         noScrollgridview.setAdapter(adapter);
-        noScrollgridview.setOnItemClickListener(new OnItemClickListener() {
+        noScrollgridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
                 if (arg2 == Bimp.tempSelectBitmap.size()) {
                     Log.i("ddddddd", "----------");
@@ -236,6 +265,16 @@ public class MalfunctionActivity extends Activity {
                 finish();
             }
         });
+
+       ll_problemTypes.setOnClickListener(new OnClickListener() {
+           @Override
+           public void onClick(View v) {
+//               initDefinitionPopMenu();
+               definitionMenu.showAsDropDown(v);
+
+           }
+       });
+
 
     }
 
@@ -379,6 +418,7 @@ public class MalfunctionActivity extends Activity {
 
                     ImageItem takePhoto = new ImageItem();
                     takePhoto.setBitmap(bm);
+                    takePhoto.setImagePath(FileUtils.SDPATH+fileName+FileUtils.FileType);
                     Bimp.tempSelectBitmap.add(takePhoto);
                 }
                 break;
@@ -405,16 +445,20 @@ public class MalfunctionActivity extends Activity {
         latitudeLongitude = tv_location.getText().toString();
         tunnelId = sharePreferenceUtils.getValue("TunnelId", "");
         imei = getPhoneInfo(MalfunctionActivity.this);
+        problemType = sharePreferenceUtils.getValue("TroubleTypeId", "");;
+
 
         String c_id="";
         String c_location="";
         String c_description="";
         String c_imei = "";
+        String c_problemType = "";
         try {
             c_id = URLEncoder.encode(tunnelId, "UTF-8");
             c_location = URLEncoder.encode(latitudeLongitude, "UTF-8");
             c_description = URLEncoder.encode(describe, "UTF-8");
             c_imei = URLEncoder.encode(imei, "UTF-8");
+            c_problemType = URLEncoder.encode(problemType, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
@@ -425,14 +469,17 @@ public class MalfunctionActivity extends Activity {
         params.addParameter("location", c_location);
         params.addParameter("description", c_description);
         params.addParameter("imei", c_imei);
+        params.addParameter("type", c_problemType);
 
         // 使用multipart表单上传文件
         params.setMultipart(true);
 
         for(int i=0;(i<3&&i<Bimp.tempSelectBitmap.size());i++){
             ImageItem imageItem =Bimp.tempSelectBitmap.get(i);
-            Log.d("ImageItem","ImageItem : "+imageItem.toString());
+            Log.d("ImageItem", "ImageItem : " + imageItem.toString());
+
             params.addBodyParameter("file"+(i+1),  new File(imageItem.getImagePath()), "application/octet-stream"); // 如果文件没有扩展名, 最好设置contentType参数.
+
         }
 
         x.http().post(params, new org.xutils.common.Callback.CommonCallback<String>() {
@@ -492,6 +539,8 @@ public class MalfunctionActivity extends Activity {
                     sharePreferenceUtils.setValue("Address", "");
                     sharePreferenceUtils.setValue("Describe", "");
                     sharePreferenceUtils.setValue("TunnelId", "");
+                    sharePreferenceUtils.setValue("TroubleType", "");
+                    sharePreferenceUtils.setValue("TroubleTypeId", "");
 
                     String string = (String) msg.obj;
                     Log.d("handleMessage", "handleMessage : " + string);
@@ -608,5 +657,86 @@ public class MalfunctionActivity extends Activity {
         return tm.getDeviceId();
     }
 
+    private void getAllTroubleTypes(){
+        String httpurl = Constant.troubleTypes;
+        HttpClientRequest httpClientRequest = HttpClientRequest.getInstance(MalfunctionActivity.this);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,httpurl,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d("ffffffffffffff", "response -> " + response);
 
+                        JSONObject jsonObject = null;
+                        JSONObject jsonObjectResult = null;
+                        String results;
+                        try {
+                            jsonObject = new JSONObject(response);
+                            results = jsonObject.getString("results");
+                            jsonObjectResult = jsonObject.getJSONObject("results");
+                            Iterator<String> keys = jsonObjectResult.keys();
+                            while(keys.hasNext()) {
+                                String key = keys.next();
+                                Log.d("ffffffffffffff", "response -> " + key+" : "+jsonObjectResult.getString(key)+" : "+Integer.valueOf(key));
+
+                                definitionMap.put(jsonObjectResult.getString(key), Integer.valueOf(key));
+                                Log.d("ffffffffffffff", "response -> " + key);
+
+                                Log.d("ffffffffffffff", "response -d> " + jsonObjectResult.getString(key));
+
+                                initDefinitionPopMenu();
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("ffffffffffffff", error.getMessage(), error);
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() {
+                //在这里设置需要post的参数
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("imei",getPhoneInfo(MalfunctionActivity.this));
+
+                String sign = null;
+                try {
+                    sign = URLEncoder.encode(MD5Tools.GetMD5Code(Constant.PublicKey), "UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+                params.put("sign", sign);
+//                Log.e("ffffffffffffff", " sign : "+sign);
+                return params;
+            }
+        };
+
+        httpClientRequest.addRequest(stringRequest);
+    }
+
+    private void initDefinitionPopMenu() {
+        definitionMenu = new PopMenu(this, R.drawable.popup, currentDefinition);
+        // 设置清晰度列表
+        definitionArray = new String[]{};
+        definitionArray = definitionMap.keySet().toArray(definitionArray);
+//        definitionArray = (String[]) definitionMap.keySet().toArray();
+
+        Log.d("definitionArray","definitionArray s: "+definitionMap.keySet().size());
+        Log.d("definitionArray","definitionArray d: "+definitionArray.length);
+
+        definitionMenu.addItems(definitionArray);
+        definitionMenu.setOnItemClickListener(new PopMenu.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(int position) {
+                Log.d("definitionArray","definitionArray position: "+position+" : "+definitionMap.get(definitionArray[position]));
+
+                tv_problemTypes.setText(definitionArray[position]);
+                sharePreferenceUtils.setValue("TroubleType", definitionArray[position]);
+                sharePreferenceUtils.setValue("TroubleTypeId", definitionMap.get(definitionArray[position])+"");
+            }
+        });
+    }
 }

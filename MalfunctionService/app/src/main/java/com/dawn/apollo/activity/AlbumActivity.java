@@ -127,7 +127,7 @@ public class AlbumActivity extends Activity {
 	private class CancelListener implements OnClickListener {
 		public void onClick(View v) {
 			Bimp.tempSelectBitmap.clear();
-			intent.setClass(mContext, MainActivity.class);
+			intent.setClass(mContext, MalfunctionActivity.class);
 			startActivity(intent);
 		}
 	}

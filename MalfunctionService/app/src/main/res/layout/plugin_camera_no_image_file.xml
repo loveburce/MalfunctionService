@@ -3,12 +3,12 @@
     android:layout_width="fill_parent"
     android:layout_height="match_parent" 
     android:background="@color/albumback"
-    >
+>
     <RelativeLayout
         android:id="@+id/headview"
         android:layout_width="fill_parent"
         android:layout_height="45dp"
-        android:background="@drawable/plugin_camera_title_bar" 
+        android:background="@drawable/plugin_camera_title_bar"
         android:gravity="center_vertical"
         >
         
@@ -30,7 +30,7 @@
             android:id="@+id/cancel"
             android:text="@string/camera_cancel"
             android:layout_alignParentRight="true"
-            android:textSize="14sp"
+            android:textSize="16sp"
             android:textColor="#fff"
             />
     </RelativeLayout>
@@ -39,7 +39,8 @@
 	<TextView
 	   	android:id="@+id/no_picture_confirm"
 	   	android:layout_centerInParent="true"
-	    />
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
     
     
 </RelativeLayout>

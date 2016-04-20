@@ -9,15 +9,14 @@
         android:id="@+id/showallphoto_headview"
         android:layout_width="fill_parent"
         android:layout_height="45dp"
-        android:background="@drawable/plugin_camera_title_bar" 
-        android:gravity="center_vertical"
-        >
+        android:background="@color/lightslategrey"
+        android:gravity="center_vertical">
         <Button
             android:background="@drawable/plugin_camera_title_btn_back"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_centerVertical="true"
-            android:textSize="14sp"
+            android:textSize="16sp"
             android:textColor="#fff"
             android:id="@+id/showallphoto_back"
             android:text="@string/album" />
@@ -41,7 +40,7 @@
       	    android:layout_marginRight="5dp"
             android:text="@string/camera_cancel"
             android:textColor="#fff"
-        	android:textSize="15dp"
+        	android:textSize="16sp"
 			android:background="@drawable/plugin_camera_title_btn_cancel" />
     </RelativeLayout>
 

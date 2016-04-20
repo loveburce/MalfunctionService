@@ -12,6 +12,8 @@ public class FileUtils {
 	public static String SDPATH = Environment.getExternalStorageDirectory()
 			+ "/Photo_LJ/";
 
+	public static String FileType =".JPEG";
+
 	public static void saveBitmap(Bitmap bm, String picName) {
 		try {
 			if (!isFileExist("")) {
